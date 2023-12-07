@@ -52,9 +52,8 @@ func ParseInput(filename string) ([]int,map[string]AlmanacMapList) {
 			}
 			seedNumbers = append(seedNumbers, seed)
 		}
-		return seedNumbers, nil
 	}	
-	return nil, nil	
+	return seedNumbers, nil	
 }	
 
 func main(){
