@@ -33,18 +33,6 @@ func (mapList *AlmanacMapList) FindDestination (input int) int{
 	return input
 }
 
-func StringListToInts(strList []string) []int {
-	var numList []int
-	for _, str := range strList {
-		num, err := strconv.Atoi(str)
-		if err != nil{
-			log.Fatal("Error converting num (%s) to int: %v\n", str, err)
-		}
-		numList = append(numList, num)
-	}
-	return numList
-}
-
 func BuildMap(scanner *bufio.Scanner) map[string]AlmanacMapList {
 	almanac  := make(map[string]AlmanacMapList)
 	var src, dest string
@@ -64,7 +52,7 @@ func BuildMap(scanner *bufio.Scanner) map[string]AlmanacMapList {
 			}	
 		} else if unicode.IsDigit(rune(line[0])) {
 			// add new map list item
-			mapFields := StringListToInts(strings.Fields(line))
+			mapFields := aoc.StringsToInts(strings.Fields(line))
 			mapList := almanac[src]
 
 			mapList.maps = append(almanac[src].maps, AlmanacMap{

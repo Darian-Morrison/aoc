@@ -4,7 +4,20 @@ import (
 	"os"
 	"log"
 	"fmt"
+	"strconv"
 )
+
+func StringsToInts(strList []string) []int {
+	var numList []int
+	for _, str := range strList {
+		num, err := strconv.Atoi(str)
+		if err != nil{
+			log.Fatal("Error converting num (%s) to int: %v\n", str, err)
+		}
+		numList = append(numList, num)
+	}
+	return numList
+}
 
 func MustOpenFile(filename string) (*os.File) {
 	file, error := os.Open(filename)

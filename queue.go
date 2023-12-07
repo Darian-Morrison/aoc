@@ -5,15 +5,15 @@ type Queue struct {
 }
 
 func (q *Queue) Enqueue(item interface{}) {
-	s.items = append(q.items, item)
+	q.items = append(q.items, item)
 }
 
 func (q *Queue) Dequeue() interface{} {
-	if s.IsEmpty() {
+	if q.IsEmpty() {
 		return nil
 	}
-	bottom := s.items[0]
-	s.items = s.items[1:]
+	bottom := q.items[0]
+	q.items = q.items[1:]
 	return bottom
 }
 
