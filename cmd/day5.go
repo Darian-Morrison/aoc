@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"os"
 	"fmt"
 	"aoc"
@@ -8,6 +9,7 @@ import (
 	"strings"
 	"strconv"
 	"log"
+	"unicode"
 )
 
 type AlmanacMap struct{
@@ -17,7 +19,7 @@ type AlmanacMap struct{
 }
 
 type AlmanacMapList struct{
-	destination string
+	dest string
 	maps []AlmanacMap
 }
 
@@ -31,8 +33,65 @@ func (mapList *AlmanacMapList) FindDestination (input int) int{
 	return input
 }
 
-func BuildMap(filename string) map[string]AlmanacMapList {
-	return nil			
+func StringListToInts(strList []string) []int {
+	var numList []int
+	for _, str := range strList {
+		num, err := strconv.Atoi(str)
+		if err != nil{
+			log.Fatal("Error converting num (%s) to int: %v\n", str, err)
+		}
+		numList = append(numList, num)
+	}
+	return numList
+}
+
+func BuildMap(scanner *bufio.Scanner) map[string]AlmanacMapList {
+	almanac  := make(map[string]AlmanacMapList)
+	var src, dest string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) == 0 {
+			continue
+		} else if unicode.IsLetter(rune(line[0])) {
+			// Create new AlmanacMapList
+			srcDest := strings.Split(strings.Fields(line)[0], "-to-")
+			src = srcDest[0]
+			dest = srcDest[1]
+			almanac[src] = AlmanacMapList{
+				dest: dest,
+				maps: []AlmanacMap{},
+			}	
+		} else if unicode.IsDigit(rune(line[0])) {
+			// add new map list item
+			mapFields := StringListToInts(strings.Fields(line))
+			mapList := almanac[src]
+
+			mapList.maps = append(almanac[src].maps, AlmanacMap{
+				srcStart: mapFields[1],
+				srcEnd: mapFields[1] + mapFields[2] - 1,
+				destStart: mapFields[0],
+			})
+			almanac[src] = mapList
+		}
+	}
+	return almanac			
+}
+
+func SeedToLocation(seed int, almanac map[string]AlmanacMapList) int {
+	componentIndex := "seed"
+	num := seed
+	for componentIndex != "location" {
+		mapList := almanac[componentIndex]
+		for _, mapItem := range mapList.maps {
+			if mapItem.srcStart <= num && mapItem.srcEnd >= num {
+				num = mapItem.destStart + num - mapItem.srcStart
+				break
+			}
+		}
+		componentIndex = mapList.dest
+	}
+	return num
 }
 
 func ParseInput(filename string) ([]int,map[string]AlmanacMapList) {
@@ -53,7 +112,7 @@ func ParseInput(filename string) ([]int,map[string]AlmanacMapList) {
 			seedNumbers = append(seedNumbers, seed)
 		}
 	}	
-	return seedNumbers, nil	
+	return seedNumbers, BuildMap(scanner)	
 }	
 
 func main(){
@@ -66,9 +125,28 @@ func main(){
 		inputPath = args[0]
 		fmt.Printf("Using %s as input\n", inputPath)
 	}
-	seedNumbers, _ := ParseInput(inputPath)
+	seedNumbers, almanac := ParseInput(inputPath)
+	minLocation := math.MaxInt
+
 	for _, seed := range seedNumbers {
-		fmt.Printf("Seed: %d\n", seed)
+		newLocation := SeedToLocation(seed, almanac)
+		if minLocation > newLocation {
+			minLocation = newLocation
+		}
 	}
+	fmt.Printf("Minimum location(part1): %d\n", minLocation)	
+	minLocation = math.MaxInt	
+	for i := 0; i < len(seedNumbers); i += 2 {
+		start := seedNumbers[i]
+		rng := seedNumbers[i + 1]
+		for j := start; j < start + rng; j++ {
+			newLocation := SeedToLocation(j, almanac)
+			if minLocation > newLocation {
+				minLocation = newLocation
+			}
+		}
+	}
+	fmt.Printf("Minimum location: %d\n", minLocation)	
+
 }
 
