@@ -36,13 +36,6 @@ func DecodeLine(str string) int{
 	return num
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
 func DecodeLine2(str string) int{
 	var firstDigit, lastDigit rune
 	
@@ -54,9 +47,8 @@ func DecodeLine2(str string) int{
 				firstDigit = runeValue
 			}
 		} else {
-			for j, _ := range str[i:min(len(str), i + 6)] {
+			for j, _ := range str[i:aoc.Min(len(str), i + 6)] {
 				digit, exists := numStringToDigit[str[i:(i+j+1)]]
-				fmt.Printf("i: %d, i+j: %d, slice: %s, hit?: %t\n", i, i+j+1, str[i:(i+j+1)], exists)
 				if exists {
 					lastDigit = digit
 					if firstDigit == 0 {
@@ -69,7 +61,6 @@ func DecodeLine2(str string) int{
 		}
 		i++
 	}
-	fmt.Printf("Input: %s, first: %c, last: %c\n", str, firstDigit, lastDigit)
 	num, err := strconv.Atoi(string(firstDigit) + string(lastDigit))
 	if err != nil {
 		log.Fatal("Error:", err)

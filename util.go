@@ -7,6 +7,21 @@ import (
 	"strconv"
 )
 
+
+func Min(a int, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func Max(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 func StringsToInts(strList []string) []int {
 	var numList []int
 	for _, str := range strList {

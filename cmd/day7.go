@@ -76,13 +76,6 @@ func CompareCardValues(a string, b string) int{
 	return 0
 }
 
-func Max(a int, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
 func CompareCards(a string, b string) int{
 	aCounter := CountCards(a)
 	bCounter := CountCards(b)
@@ -101,11 +94,11 @@ func CompareCards(a string, b string) int{
 		// Handles Three of a kind and two pair
 		maxA := 0
 		for _, value := range aCounter {
-			maxA = Max(maxA, value)
+			maxA = aoc.Max(maxA, value)
 		}
 		maxB := 0
 		for _, value := range bCounter {
-			maxB = Max(maxB, value)	
+			maxB = aoc.Max(maxB, value)	
 		}
 		if maxA > maxB {
 			return 1
