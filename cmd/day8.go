@@ -6,38 +6,59 @@ import (
 	"os"
 	"aoc"
 	"strings"
-	"strconv"
-	"log"
 )
 
-func ParseInput(filename string) []Hand {
-	result := []Hand{}
+type Pair struct {
+	left string
+	right string
+}
+
+func ParseInput(filename string) (string, map[string]Pair) {
+	nodes := make(map[string]Pair)
 
 	file := aoc.MustOpenFile(filename)
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
 	
-	for scanner.Scan() {
-		parts := strings.Fields(scanner.Text())
-		bid, err := strconv.Atoi(parts[1])
-
-		if err != nil {
-			log.Fatal("Failed to convert bid to int: %v\n", err)
-		}
-		result = append(result, Hand{
-			cards: parts[0],
-			bid: bid,
-		})
+	instructions := ""
+	if scanner.Scan() {
+		instructions = scanner.Text()
 	}
-	return result
+	
+	for scanner.Scan() {
+		parts := strings.Split(scanner.Text(), " = ")
+		if len(parts) < 2 {
+			continue
+		}
+		key := parts[0]
+		optionsText :=  strings.Split(strings.Trim(parts[1], "()"), ", ")
+
+		nodes[key] = Pair{
+			left: optionsText[0],
+			right: optionsText[1],
+		}
+	}
+	return instructions, nodes
 }
 
-func Max(a int, b int) int {
-	if a > b {
-		return a
+func AllTerminating(nodes []string) bool {
+	for _, node := range nodes {
+		if node[len(node) - 1] != 'Z' {
+			return false
+		}
 	}
-	return b
+	return true
+}
+
+func InitialNodes(nodes map[string]Pair) []string {
+	initialNodes := []string{}
+	for node, _ := range nodes {
+		if node[len(node) - 1] == 'A' {
+			initialNodes = append(initialNodes, node)
+		}
+	}
+	return initialNodes
 }
 
 func main(){
@@ -51,12 +72,38 @@ func main(){
 		fmt.Printf("Using %s as input\n", inputPath)
 	}
 
-	hands := SortHands(ParseInput(inputPath))
-	size := len(hands)
-	result := 0
-	for i, hand := range hands {	
-		result = result + (size - i) * hand.bid
+	instructions, nodes := ParseInput(inputPath)	
+	_, part1Compatible := nodes["ZZZ"]
+	count := 0
+	if part1Compatible {
+		for index := "AAA"; index != "ZZZ"; count++ {
+			if instructions[count % len(instructions)] == 'R' {
+				index = nodes[index].right
+			} else {
+				index = nodes[index].left
+			}
+		}
+
+		fmt.Printf("Number of steps (part1): %d\n", count)
 	}
-	fmt.Printf("Total winnings: %d\n", result)
+
+	count = 0
+	startNodes := InitialNodes(nodes)
+	for indexes := startNodes; !AllTerminating(indexes); count++ {
+		newIndexes := []string{}
+		if instructions[count % len(instructions)] == 'R' {
+			for _, index := range indexes {
+				newIndexes = append(newIndexes, nodes[index].right)
+			}
+		} else {
+			for _, index := range indexes {
+				newIndexes = append(newIndexes, nodes[index].left)
+			}
+		}
+		fmt.Printf("Size of indexes: %d, count: %d\n", len(newIndexes), count)
+		indexes = newIndexes
+		
+	}
+	fmt.Printf("Number of steps (part2): %d\n", count)
 }
 
