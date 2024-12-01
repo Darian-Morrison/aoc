@@ -1,3 +1,3 @@
 # AOC
-Advent of code for 2023 using GoLang for the first time.
+Advent of code repo. See folders for past yesrs submissions. 
 https://adventofcode.com/
